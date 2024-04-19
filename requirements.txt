@@ -1,0 +1,8 @@
+pandas
+requests
+numpy
+netCDF4
+seaborn
+matplotlib
+gc
+keras
