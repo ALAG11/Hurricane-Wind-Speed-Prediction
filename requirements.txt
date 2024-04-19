@@ -4,5 +4,4 @@ numpy
 netCDF4
 seaborn
 matplotlib
-gc
 keras
