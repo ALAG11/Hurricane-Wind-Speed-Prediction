@@ -1,17 +1,16 @@
+## Importing necessary libraries and packages
 import pandas as pd
 import numpy as np
 import os
 import netCDF4
 
-# Reads in the Best Track dataset, which contain records of the location and maximum wind speed of every recorded
-# hurricane in the Atlantic and Eastern/Central Pacific basins
+# Reads in the Best Track dataset, which contain records of the location and maximum wind speed of every recorded hurricane in the Atlantic and Eastern/Central Pacific basins
 best_track_data = pd.read_csv('besttrack.csv')
 
 # The number of pixels wide and tall to crop the images of hurricanes to
 side_length = 50
 
-# Lists to hold the hurricane images and the wind speed associated with those images. These lists are aligned so that
-# the first image in the images list corresponds to the first label in the labels list.
+# Lists to hold the hurricane images and the wind speed associated with those images. These lists are aligned so that the first image in the images list corresponds to the first label in the labels list.
 images = []
 labels = []
 
@@ -24,7 +23,7 @@ for i in range(len(files)):
     raw_data = netCDF4.Dataset('Satellite Imagery/' + files[i])
     ir_data = raw_data.variables['IRWIN'][0]
 
-    # 'Crop' the image by removing north, south, east, and west edges
+    # Cropping the image
     south_bound = (ir_data.shape[0] - side_length) // 2
     north_bound = south_bound + side_length
     cropped_ir_data = ir_data[south_bound:north_bound]
@@ -40,7 +39,7 @@ for i in range(len(files)):
     date = int(file_name[2] + file_name[3] + file_name[4])
     time = int(file_name[5])
 
-    # Filter the best track dataset to find the row that matches the name, date, and time of this hurricane image
+    # Filter the "besttrack.csv" dataset to find the row that matches the name, date, and time of this hurricane image
     matching_best_track_data = best_track_data.loc[
         (best_track_data.storm_name == storm_name) &
         (best_track_data.fulldate == date) &
@@ -61,10 +60,10 @@ for i in range(len(files)):
 
     raw_data.close()
 
-    print('\rProcessing Samples... ' + str(round(((i + 1) / num_files) * 100, 1)) + '% (' + str(i + 1) + ' of ' + str(
+    print('\rProcessing Samples.... ' + str(round(((i + 1) / num_files) * 100, 1)) + '% (' + str(i + 1) + ' of ' + str(
         num_files) + ')', end='')
 
-print('\nSaving NumPy arrays...')
+print('\nSaving NumPy arrays....')
 
 # Turn the list of images and labels into NumPy arrays
 images = np.array(images)
@@ -74,8 +73,8 @@ labels = np.array(labels)
 # dimension would typically be 3 if we were working with color images
 images = images.reshape((images.shape[0], side_length, side_length, 1))
 
-# Save the NumPy arrays for use in model.py, where the neural network is trained and validated on this data
+# Saving the NumPy arrays files
 np.save('images.npy', images)
 np.save('labels.npy', labels)
 
-print("\nNumPy files saved. Processing complete.")
+print("\nNumPy files saved")
