@@ -1,3 +1,4 @@
+# Importing necessary libraries and packages
 import os
 import pandas as pd
 import requests
@@ -6,13 +7,11 @@ import tarfile
 
 
 def download_hursat(years):
-    # Reads in the Best Track dataset, which contain records of the location and maximum wind speed of every recorded
-    # hurricane in the Atlantic and Eastern/Central Pacific basins
+    # Reads in the "besttrack.csv" dataset, which contain records of the location and maximum wind speed of every recorded hurricane in the Atlantic and Eastern/Central Pacific basins
     best_track_data = pd.read_csv('besttrack.csv')
 
     for year in years:
-        # Scrapes a webpage to get list of all .tar.gz files. Each file contains all the satellite images associated
-        # with a particular hurricane.
+        # Scrapes a webpage to get list of all .tar.gz files. Each file contains all the satellite images associated with a particular hurricane.
         year_directory_url = 'https://www.ncei.noaa.gov/data/hurricane-satellite-hursat-b1/archive/v06/' + year
         year_directory_page = requests.get(year_directory_url).text
         year_directory_soup = BeautifulSoup(year_directory_page, 'html.parser')
@@ -36,7 +35,6 @@ def download_hursat(years):
                 file_name = storm_file_url.split('/')[-1]
                 storm_file_path = 'Satellite Imagery/' + file_name
 
-                # Create the Satellite Imagery folder if it doesn't already exist
                 if not os.path.exists('Satellite Imagery'):
                     os.makedirs('Satellite Imagery')
 
@@ -45,8 +43,7 @@ def download_hursat(years):
                 open(storm_file_path, 'wb').write(request.content)
                 request.close()
 
-                # Open the .tar.gz file and loop through each file inside. Each of these netcdf files contains a
-                # satellite image of a hurricane at a moment in time
+                # Open the .tar.gz file and loop through each file inside. Each of these netcdf files contains a satellite image of a hurricane at a moment in time
                 tar = tarfile.open(storm_file_path)
                 file_prefixes_in_directory = []
                 for file_name in tar.getnames():
@@ -59,8 +56,7 @@ def download_hursat(years):
                     file_has_match_in_best_track = not best_track_data.loc[
                         (best_track_data['fulldate'] == int(fulldate)) & (best_track_data['time'] == int(time))].empty
 
-                    # Determine whether another image of this hurricane at this exact time has already been extracted
-                    # from the .tar.gz
+                    # Determine whether another image of this hurricane at this exact time has already been extracted from the .tar.gz
                     is_redundant = '.'.join(file_name.split('.')[:6]) in file_prefixes_in_directory
 
                     # If the requirements are met, extract the netcdf file from this .tar.gz and save it locally
@@ -82,8 +78,7 @@ def print_progress(action, progress, total):
 
 
 if __name__ == "__main__":
-    # Specify a list of years. Satellite images of hurricanes from those years will be downloaded. More years will
-    # provide more data for the neural network to work with in model.py, but will take longer to download.
+    # Specify a list of years. Satellite images of hurricanes from those years will be downloaded.
     YEARS_TO_DOWNLOAD = ['2016', '2015', '2014', '2013', '2012']
 
     download_hursat(YEARS_TO_DOWNLOAD)
