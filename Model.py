@@ -1,3 +1,4 @@
+# Importing necessary libraries and packages
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -16,7 +17,7 @@ def read_and_prepare_data(validation_mode, k=5, augment=True):
 
     if validation_mode == 'k_fold':
 
-        # Read in data from files
+        # Read in data from .npy files
         images = np.load('images.npy')
         labels = np.load('labels.npy')
 
@@ -129,7 +130,7 @@ def augment_images(images, labels):
 
 def build_model():
 
-    # Build network architecture
+    # Building network architecture
     model = models.Sequential()
     model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(50, 50, 1)))
     model.add(layers.MaxPooling2D((2, 2)))
@@ -142,7 +143,7 @@ def build_model():
     model.add(layers.Dense(16, activation='relu'))
     model.add(layers.Dense(1, activation=None))
 
-    # Configure model optimization
+    # Configuring model optimization
     model.compile(
         optimizer='rmsprop',
         loss='mse',
@@ -153,7 +154,7 @@ def build_model():
 
 def train_model(model, train_images, train_labels, test_images, test_labels, show_performance_by_epoch=False):
 
-    # Run model and get metrics for each epoch
+    # Running the model and get metrics for each epoch
     performance_log = model.fit(
         train_images,
         train_labels,
@@ -170,14 +171,14 @@ def train_model(model, train_images, train_labels, test_images, test_labels, sho
 
 def performance_by_epoch(performance_log):
 
-    # Get metrics for each epoch after model finishes training
+    # Get metrics for each epoch after the model finishes training
     train_loss = performance_log.history['loss']
     test_loss = performance_log.history['val_loss']
     train_mae = performance_log.history['mean_absolute_error']
     test_mae = performance_log.history['val_mean_absolute_error']
     epochs = range(1, len(train_loss) + 1)
 
-    # Build a dataframe storing epoch metrics
+    # Building a dataframe storing epoch metrics
     performance_df = pd.DataFrame(columns=['epoch', 'train_or_test', 'loss_or_mae', 'value'])
     for i in range(len(train_loss)):
         new_row = {'epoch': epochs[i], 'train_or_test': 'train', 'loss_or_mae': 'loss', 'value': train_loss[i]}
@@ -310,12 +311,10 @@ def category_of(wind_speed):
 
 
 if __name__ == "__main__":
-    # Specify whether the script should use Keras's ImageDataGenerator to augment the training dataset. Assigning
-    # this variable to True will improve accuracy, but will also increase execution time.
+    # Specify whether the script should use Keras's ImageDataGenerator to augment the training dataset. Assigning this variable to True will improve accuracy, but will also increase execution time.
     AUGMENT = True
 
-    # Specify how many folds in the k-fold validation process. Can be any integer greater than or equal to 2. Larger
-    # integers will increase execution time.
+    # Specify how many folds in the k-fold validation process. Can be any integer greater than or equal to 2. Larger integers will increase execution time.
     NUM_FOLDS = 5
 
     train_images, train_labels, test_images, test_labels = read_and_prepare_data('k_fold', NUM_FOLDS, augment=AUGMENT)
